@@ -2,23 +2,17 @@
 
 import battleSchema from "../schemas/battleSchema.js";
 
-export default function validateBattleMiddleware(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export default function validateBattleMiddleware(req: Request, res: Response, next: NextFunction) {
   const firstUser: string = req.body.firstUser;
-  const secondUser: string = req.body.seconduser;
+  const secondUser: string = req.body.secondUser;
 
-  const { error } = battleSchema.validate(
-    { firstUser, secondUser },
-    { abortEarly: false }
-  );
+  const { error } = battleSchema.validate({ firstUser, secondUser }, { abortEarly: false });
   if (error) {
     throw {
       name: "unprocessable",
       message: error.details.map((detail) => detail.message),
     };
-    return res.status(422).send();
   }
+
+  next();
 }
