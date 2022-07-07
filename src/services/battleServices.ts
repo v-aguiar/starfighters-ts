@@ -1,4 +1,5 @@
-﻿import checkGithubUser from "../utils/checkGithubUser.js";
+﻿import battleRepository from "../repositories/battleRepository.js";
+import checkGithubUser from "../utils/checkGithubUser.js";
 import iterateStars from "../utils/iterateStars.js";
 
 type outcomeReturn = {
@@ -36,6 +37,43 @@ const battleServices = {
     return {
       winner: draw ? null : winner,
       loser: draw ? null : loser,
+      draw,
+    };
+  },
+
+  registerOutcome: async ({ winner, loser, draw }: outcomeReturn) => {
+    const { rows: existingWinner } = await battleRepository.checkExistingRecord(winner);
+    const { rows: existingLoser } = await battleRepository.checkExistingRecord(loser);
+
+    if (draw) {
+      if (existingWinner.length === 0) {
+        await battleRepository.insertFighterRecord(winner, "draw");
+        await battleRepository.insertFighterRecord(loser, "draw");
+      }
+
+      await battleRepository.handleDrawOutcome(winner);
+      await battleRepository.handleDrawOutcome(loser);
+    }
+
+    if (existingWinner.length === 0) {
+      await battleRepository.insertFighterRecord(winner, "win");
+    }
+
+    if (existingWinner.length > 0) {
+      await battleRepository.handleWinnerOutcome(winner);
+    }
+
+    if (existingLoser.length === 0) {
+      await battleRepository.insertFighterRecord(loser, "loss");
+    }
+
+    if (existingLoser.length > 0) {
+      await battleRepository.handleLoserOutcome(loser);
+    }
+
+    return {
+      winner,
+      loser,
       draw,
     };
   },
