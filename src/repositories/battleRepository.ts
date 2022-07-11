@@ -1,6 +1,13 @@
 ﻿import { QueryResult } from "pg";
 
 import db from "../config/db.js";
+import { Fighters } from "./rankingRepository.js";
+
+type InsertFightersData = Omit<Fighters, "id">;
+type UpdateFightersData = Partial<InsertFightersData>;
+
+type OutcomeParams = "win" | "draw" | "loss";
+type Outcome = "wins" | "draws" | "losses";
 
 const battleRepository = {
   checkExistingRecord: (username: string): Promise<QueryResult> => {
@@ -10,11 +17,11 @@ const battleRepository = {
     `;
     const values = [username];
 
-    return db.query(query, values);
+    return db.query<Fighters>(query, values);
   },
 
-  insertFighterRecord(username: string, outcome: string): Promise<QueryResult> {
-    let outcomeType = "";
+  insertFighterRecord(username: string, outcome: OutcomeParams): Promise<QueryResult> {
+    let outcomeType: Outcome;
 
     if (outcome === "win") {
       outcomeType = "wins";
@@ -31,9 +38,9 @@ const battleRepository = {
     const query = `INSERT INTO "fighters" ("username", $1)
       VALUES ($1, 1)
     `;
-    const values = [username, outcome];
+    const values = [username, outcomeType];
 
-    return db.query(query, values);
+    return db.query<InsertFightersData>(query, values);
   },
 
   handleDrawOutcome: (username: string): Promise<QueryResult> => {
@@ -43,7 +50,7 @@ const battleRepository = {
     `;
     const values = [username];
 
-    return db.query(query, values);
+    return db.query<UpdateFightersData>(query, values);
   },
 
   handleWinnerOutcome: (username: string): Promise<QueryResult> => {
@@ -53,7 +60,7 @@ const battleRepository = {
     `;
     const values = [username];
 
-    return db.query(query, values);
+    return db.query<UpdateFightersData>(query, values);
   },
 
   handleLoserOutcome: (username: string): Promise<QueryResult> => {
@@ -63,7 +70,7 @@ const battleRepository = {
     `;
     const values = [username];
 
-    return db.query(query, values);
+    return db.query<UpdateFightersData>(query, values);
   },
 };
 

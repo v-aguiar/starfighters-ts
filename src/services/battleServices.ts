@@ -2,14 +2,14 @@
 import checkGithubUser from "../utils/checkGithubUser.js";
 import iterateStars from "../utils/iterateStars.js";
 
-type outcomeReturn = {
-  winner: string | null;
-  loser: string | null;
+interface OutcomeReturn {
+  winner?: string;
+  loser?: string;
   draw: boolean;
-};
+}
 
 const battleServices = {
-  outcome: async (firstUser: string, secondUser: string): Promise<outcomeReturn> => {
+  outcome: async (firstUser: string, secondUser: string): Promise<OutcomeReturn> => {
     const firstUserData = await checkGithubUser(firstUser);
     const secondUserData = await checkGithubUser(secondUser);
 
@@ -32,8 +32,6 @@ const battleServices = {
       loser = firstUser;
     }
 
-    // TODO -> save outcome on database (repository)
-
     return {
       winner: draw ? null : winner,
       loser: draw ? null : loser,
@@ -41,7 +39,7 @@ const battleServices = {
     };
   },
 
-  registerOutcome: async ({ winner, loser, draw }: outcomeReturn) => {
+  registerOutcome: async ({ winner, loser, draw }: OutcomeReturn) => {
     const { rows: existingWinner } = await battleRepository.checkExistingRecord(winner);
     const { rows: existingLoser } = await battleRepository.checkExistingRecord(loser);
 

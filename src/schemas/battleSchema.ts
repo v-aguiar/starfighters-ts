@@ -1,6 +1,8 @@
-﻿import Joi from "joi";
+﻿import Joi, { Schema } from "joi";
 
-const battleSchema = Joi.object({
+import { BattleBody } from "../controllers/battleController.js";
+
+const battleSchema: Schema<BattleBody> = Joi.object({
   firstUser: Joi.string().required().messages({
     "string.empty": "⚠ 'firstUser' is required!",
   }),
